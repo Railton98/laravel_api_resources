@@ -14,17 +14,9 @@ class StudentController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return response()->json([
+            'message' => 'Student Index'
+        ]);
     }
 
     /**
@@ -45,17 +37,6 @@ class StudentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Student $student)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Student $student)
     {
         //
     }
