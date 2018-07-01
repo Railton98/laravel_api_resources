@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Http\Requests;
+use App\Http\Resources\StudentResource;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class StudentController extends Controller
 {
@@ -14,9 +17,11 @@ class StudentController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'message' => 'Student Index'
-        ]);
+        //Get Students
+        $students = Student::paginate(15);
+
+        //Return collection of Students as a resource
+        return StudentResource::collection($students);
     }
 
     /**
@@ -27,7 +32,11 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $student = Student::create($request->all());
+
+        if ($student) {
+            return new StudentResource($student);
+        }
     }
 
     /**
@@ -38,7 +47,8 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
-        //
+        // Return single student as a resource
+        return new StudentResource($student);
     }
 
     /**
@@ -50,7 +60,9 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        //
+        if ($student->update($request->all())) {
+            return new StudentResource($student);
+        }
     }
 
     /**
@@ -61,6 +73,11 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        //
+        return response()->json(
+            $student->delete(), Response::HTTP_NO_CONTENT
+        );
+        // if ($student->delete()) {
+        //     return new StudentResource($student);
+        // }
     }
 }
