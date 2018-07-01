@@ -12,5 +12,8 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return response()->json([
+        'message' => 'Application Home',
+        'redirect' => 'http://localhost:8000/api',
+    ], 200);
 });
