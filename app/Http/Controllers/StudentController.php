@@ -76,8 +76,5 @@ class StudentController extends Controller
         return response()->json(
             $student->delete(), Response::HTTP_NO_CONTENT
         );
-        // if ($student->delete()) {
-        //     return new StudentResource($student);
-        // }
     }
 }
