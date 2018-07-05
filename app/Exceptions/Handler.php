@@ -3,6 +3,10 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -13,7 +17,13 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        // lista dos tipos de exceção que não devem ser relatados (ex: em log)
+        \Illuminate\Auth\AuthenticationException::class,
+        \Illuminate\Auth\Access\AuthorizationException::class,
+        \Symfony\Component\HttpKernel\Exception\HttpException::class,
+        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
+        \Illuminate\Session\TokenMismatchException::class,
+        \Illuminate\Validation\ValidationException::class,
     ];
 
     /**
@@ -46,6 +56,29 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        return parent::render($request, $exception);
+        // if(!$request->expectsJson()) {
+        //     return parent::render($request, $exception);
+        // }
+
+    switch($exception /*ou true*/) {
+            case $exception instanceof ModelNotFoundException:
+                return response()->json([
+                    'message' => 'Record not found',//$exception,
+                ], 404);
+                break;
+
+            case $exception instanceof NotFoundHttpException:
+                return response()->json([
+                    'message' => 'Page not found',
+                ], 404);
+                break;
+
+            case $exception instanceof QueryException:
+                return response()->json([
+                    'message' => $exception->errorInfo,
+                ], 400);
+                break;
+        }
+
     }
 }
