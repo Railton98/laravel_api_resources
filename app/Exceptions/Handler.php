@@ -7,7 +7,9 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Debug\Exception\FlattenException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
 
 class Handler extends ExceptionHandler
 {
@@ -56,29 +58,53 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        // if(!$request->expectsJson()) {
-        //     return parent::render($request, $exception);
+        return parent::render($request, $exception);
+
+        // switch($exception /*ou true*/) {
+        //     case $exception instanceof ModelNotFoundException:
+        //         return response()->json([
+        //             'message' => 'Record not found',//$exception,
+        //         ], Response::HTTP_NOT_FOUND);
+        //         break;
+        //
+        //     case $exception instanceof NotFoundHttpException:
+        //         return response()->json([
+        //             'message' => 'Page not found',
+        //         ], Response::HTTP_NOT_FOUND);
+        //         break;
+        //
+        //     case $exception instanceof QueryException:
+        //         return response()->json([
+        //             'message' => $exception->errorInfo,
+        //         ], Response::HTTP_BAD_REQUEST);
+        //         break;
+        //
+        //     default: return response()->json([
+        //                     'message' => 'Internal Server Error',
+        //                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
         // }
 
-    switch($exception /*ou true*/) {
-            case $exception instanceof ModelNotFoundException:
-                return response()->json([
-                    'message' => 'Record not found',//$exception,
-                ], 404);
-                break;
+    }
 
-            case $exception instanceof NotFoundHttpException:
-                return response()->json([
-                    'message' => 'Page not found',
-                ], 404);
-                break;
+    /**
+     * Create a Symfony response for the given exception.
+     * =====================================================
+     * Sobrescrevendo Método original em (\Illuminate\Foundation\Exceptions\Handler)
+     * =====================================================
+     * @param  \Exception  $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function convertExceptionToResponse(Exception $e)
+    {
+        $e = FlattenException::create($e);
 
-            case $exception instanceof QueryException:
-                return response()->json([
-                    'message' => $exception->errorInfo,
-                ], 400);
-                break;
+        if (config('app.debug')) {
+            $message = $e->getMessage();
+        } else {
+            $message = Response::statusTexts[$e->getStatusCode()];
         }
 
+        return response()->json(['message' => $message], $e->getStatusCode());
     }
+
 }
