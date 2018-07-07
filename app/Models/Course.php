@@ -10,7 +10,11 @@ class Course extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'workload', 'teacher', 'description'
+        'name', 'workload', 'teacher', 'description',
+    ];
+
+    protected $hidden = [
+        'created_at', 'updated_at', 'deleted_at',
     ];
 
     public function students()
